@@ -1,0 +1,22 @@
+﻿@model IndexVm
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">
+        MyModelId: @Model.myModel.Id
+        MyModelName: @Model.myModel.Name
+    </h1>
+    <ul>
+        
+            @foreach (var item in Model.myModels)
+            {
+                <li>
+                    Id: @item.Id
+                    Name: @item.Name
+                </li>
+            }
+        
+    </ul>
+</div>
