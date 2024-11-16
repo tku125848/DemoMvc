@@ -1,6 +1,7 @@
 using System.Data;
 using Dapper;
 using DemoMVC.Connections;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DemoMVC.Models;
 
@@ -9,6 +10,8 @@ public class MyModel
     public string Id { get; set; }
     public string Name { get; set; }
     
+    
+    // DONE: add Methods GetOneFromMS (key: "mymodel") 與 GetListFromMS (key: "mymodels") 使用 connection._memoryCache 
     public static MyModel GetOne(MyDbConnection connection)
     {
         MyModel one = new MyModel();
@@ -29,4 +32,30 @@ public class MyModel
         }
         return list;
     }
+    public static MyModel GetOneFromMS(MyDbConnection connection)
+    {
+        MyModel one = connection._memoryCache.Get<MyModel>("mymodel");
+        if (one == null)
+        {
+            one = GetOne(connection);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            connection._memoryCache.Set("mymodel", one, cacheEntryOptions);
+        }
+        return one;
+    }
+
+    public static List<MyModel> GetListFromMS(MyDbConnection connection)
+    {
+        List<MyModel> list = connection._memoryCache.Get<List<MyModel>>("mymodels");
+        if (list == null)
+        {
+            list = GetList(connection);
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10));
+            connection._memoryCache.Set("mymodels", list, cacheEntryOptions);
+        }
+        return list;
+    }
+    
 }
